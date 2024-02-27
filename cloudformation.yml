@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: lambda-than-htut # Replace with your S3 bucket name
+
+  MyDynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: YourDynamoDBTableName # Replace with your DynamoDB table name
+      AttributeDefinitions:
+        - AttributeName: CommonName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: CommonName
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  MyLambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: hello1-dev-us-east-1-lambdaRole # Replace with Lambda role name
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'lambda.amazonaws.com'
+            Action: 'sts:AssumeRole'
+
+  MyLambdaPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: hello1-dev-lambda # Replace with your Lambda policy name
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+            Resource:
+              - Fn::Sub: 'arn:aws:s3:::${MyS3Bucket}/*'
+          - Effect: 'Allow'
+            Action:
+              - 'dynamodb:PutItem'
+            Resource:
+              - Fn::GetAtt:
+                  - MyDynamoDBTable
+                  - Arn
+      Roles:
+        - Ref: MyLambdaRole
+
+Outputs:
+  LambdaRoleARN:
+    Value: !GetAtt MyLambdaRole.Arn
+    Description: ARN of the IAM Role for Lambda
