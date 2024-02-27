@@ -30,7 +30,7 @@ handler.on('handle')
         try {
             const bucketName = 'lambda-than-htut'; 
             const key = 'public-cert.pem'; 
-            const tableName = 'thanhtut-dynamo';
+            const tableName = 'test123';
         
             // Step 1: Read X.509 Certificate from S3
             const certificateData = await s3.getObject({ Bucket: bucketName, Key: key }).promise();
